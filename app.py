@@ -14,10 +14,91 @@ import followup_service
 
 # Initial Setup
 st.set_page_config(
-    page_title="RecruiterAI | Risk & Engagement Platform",
+    page_title="RecruiterAI | Next-Gen Talent Intelligence",
     page_icon="🚀",
     layout="wide"
 )
+
+# --- MODERN UI STYLING ---
+def style_app():
+    st.markdown(
+        """
+        <style>
+        /* Main background and font */
+        .stApp {
+            background-color: #f8f9fa;
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Sidebar styling */
+        [data-testid="stSidebar"] {
+            background-color: #1e293b !important;
+            color: white !important;
+        }
+        [data-testid="stSidebar"] .stButton button {
+            background-color: #334155 !important;
+            color: white !important;
+            border: none !important;
+            border-radius: 8px !important;
+            transition: all 0.3s ease !important;
+            text-align: left !important;
+            padding: 10px 15px !important;
+            margin-bottom: 8px !important;
+        }
+        [data-testid="stSidebar"] .stButton button:hover {
+            background-color: #3b82f6 !important;
+            transform: translateX(5px) !important;
+        }
+
+        /* Card styling for metrics and containers */
+        div[data-testid="metric-container"] {
+            background-color: white !important;
+            border: 1px solid #e2e8f0 !important;
+            padding: 20px !important;
+            border-radius: 15px !important;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+        }
+
+        /* Header styling */
+        h1, h2, h3 {
+            color: #1e293b !important;
+            font-weight: 700 !important;
+        }
+
+        /* Tab styling */
+        .stTabs [data-baseweb="tab-list"] {
+            gap: 24px;
+        }
+        .stTabs [data-baseweb="tab"] {
+            height: 50px;
+            white-space: pre-wrap;
+            background-color: transparent !important;
+            border-radius: 8px 8px 0 0 !important;
+            font-weight: 600 !important;
+        }
+        .stTabs [aria-selected="true"] {
+            color: #3b82f6 !important;
+            border-bottom-color: #3b82f6 !important;
+        }
+
+        /* Form styling */
+        .stForm {
+            background-color: white !important;
+            padding: 30px !important;
+            border-radius: 20px !important;
+            border: 1px solid #e2e8f0 !important;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
+        }
+
+        /* Button styling */
+        .stButton>button {
+            border-radius: 8px !important;
+            font-weight: 600 !important;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
 
 # Initialize Database Tables
 try:
@@ -25,6 +106,9 @@ try:
 except Exception as e:
     st.error(f"Database initialization failed: {e}")
     st.stop()
+
+# Apply the custom styling
+style_app()
 
 # --- SESSION STATE MANAGEMENT ---
 if "current_page" not in st.session_state:
@@ -40,7 +124,10 @@ def get_db():
 # --- UI COMPONENTS ---
 
 def render_dashboard():
-    st.header("📊 Recruiter Dashboard")
+    st.title("🚀 Recruiter Intelligence Hub")
+    st.markdown("Welcome back! Here is the current state of your hiring pipeline.")
+    st.divider()
+
     db = get_db()
     try:
         total_candidates = db.query(Candidate).count()
@@ -48,22 +135,21 @@ def render_dashboard():
         total_offers = db.query(Offer).count()
 
         col1, col2, col3 = st.columns(3)
-        col1.metric("Total Candidates", total_candidates)
-        col2.metric("Open Jobs", total_jobs)
-        col3.metric("Offers Released", total_offers)
+        col1.metric("Total Candidates", total_candidates, help="Total candidates in the system")
+        col2.metric("Open Jobs", total_jobs, help="Active job requisitions")
+        col3.metric("Offers Released", total_offers, help="Total offers sent to candidates")
 
-        st.divider()
-        st.subheader("Quick Actions")
+        st.markdown("### ⚡ Quick Actions")
         c1, c2, c3 = st.columns(3)
-        if c1.button("➕ Add Candidate"): navigate_to("Candidates")
-        if c2.button("💼 Create Job"): navigate_to("Jobs")
-        if c3.button("📜 Release Offer"): navigate_to("Offers")
+        if c1.button("➕ Add Candidate", use_container_width=True): navigate_to("Candidates")
+        if c2.button("💼 Create Job", use_container_width=True): navigate_to("Jobs")
+        if c3.button("📜 Release Offer", use_container_width=True): navigate_to("Offers")
     finally:
         db.close()
 
 def render_candidates():
-    st.header("👥 Candidate Management")
-    tab1, tab2 = st.tabs(["View Candidates", "Add New Candidate"])
+    st.title("👥 Candidate Management")
+    tab1, tab2 = st.tabs(["🔎 View Directory", "➕ Add New Candidate"])
 
     with tab1:
         db = get_db()
@@ -88,6 +174,7 @@ def render_candidates():
 
     with tab2:
         with st.form("add_candidate"):
+            st.markdown("#### Candidate Profile Information")
             col1, col2 = st.columns(2)
             with col1:
                 name = st.text_input("Full Name*")
@@ -110,7 +197,7 @@ def render_candidates():
                 work_mode = st.selectbox("Preferred Work Mode", ["Remote", "Hybrid", "Onsite"])
                 reason_for_change = st.text_area("Reason for Change")
 
-            submit = st.form_submit_button("Save Candidate")
+            submit = st.form_submit_button("💾 Save Candidate Profile", use_container_width=True)
             if submit:
                 if not name or not email:
                     st.error("Name and Email are required.")
@@ -135,8 +222,8 @@ def render_candidates():
                         db.close()
 
 def render_jobs():
-    st.header("💼 Job Management")
-    tab1, tab2 = st.tabs(["View Jobs", "Create Job"])
+    st.title("💼 Job Management")
+    tab1, tab2 = st.tabs(["📋 View All Jobs", "➕ Create New Job"])
 
     with tab1:
         db = get_db()
@@ -161,6 +248,7 @@ def render_jobs():
 
     with tab2:
         with st.form("add_job"):
+            st.markdown("#### Job Specification Details")
             col1, col2 = st.columns(2)
             with col1:
                 client = st.text_input("Client Name*")
@@ -175,7 +263,7 @@ def render_jobs():
                 salary_max = st.number_input("Max Salary", min_value=0.0)
                 notice_req = st.text_input("Notice Period Requirement")
 
-            submit = st.form_submit_button("Create Job")
+            submit = st.form_submit_button("🚀 Create Job Opening", use_container_width=True)
             if submit:
                 if not client or not job_title:
                     st.error("Client and Job Title are required.")
@@ -198,8 +286,8 @@ def render_jobs():
                         db.close()
 
 def render_offers():
-    st.header("📜 Offer Management")
-    tab1, tab2 = st.tabs(["View Offers", "Release New Offer"])
+    st.title("📜 Offer Management")
+    tab1, tab2 = st.tabs(["📑 View Offers", "✨ Release New Offer"])
 
     with tab1:
         db = get_db()
@@ -224,6 +312,7 @@ def render_offers():
 
     with tab2:
         with st.form("add_offer"):
+            st.markdown("#### Offer Terms & Conditions")
             col1, col2 = st.columns(2)
             with col1:
                 cand_id = st.number_input("Candidate ID", min_value=1, step=1)
@@ -236,7 +325,7 @@ def render_offers():
                 variable_ctc = st.number_input("Variable CTC", min_value=0.0)
                 cand_status = st.selectbox("Initial Status", ["Pending", "Accepted", "Declined"])
 
-            submit = st.form_submit_button("Release Offer")
+            submit = st.form_submit_button("📤 Release Offer", use_container_width=True)
             if submit:
                 db = get_db()
                 try:
@@ -256,14 +345,14 @@ def render_offers():
                     db.close()
 
 def render_resume_screening():
-    st.header("🔍 Resume Screening (Original Tool)")
-    st.caption("AI-powered CV & JD screening assistant")
+    st.title("🔍 AI Resume Screening")
+    st.markdown("Upload CVs and JDs to get an instant AI match score and analysis.")
     st.divider()
 
     jd_text = st.text_area("Paste the Job Description", height=200, placeholder="Paste the complete JD here...")
     cv_files = st.file_uploader("Upload Candidate CV(s)", type=["pdf", "docx"], accept_multiple_files=True)
 
-    if st.button("Analyze Candidate(s)", type="primary", use_container_width=True):
+    if st.button("Analyze Candidates", type="primary", use_container_width=True):
         if not jd_text:
             st.warning("⚠️ Please paste the Job Description.")
         elif not cv_files:
@@ -287,8 +376,8 @@ def render_resume_screening():
                         os.remove(temp_path)
 
 def render_risk_monitor():
-    st.header("⚠️ Risk Monitoring System")
-    st.caption("Identify and mitigate risks for candidates in the offer stage")
+    st.title("⚠️ Risk Monitoring System")
+    st.markdown("Real-time risk detection for candidates in the offer stage.")
     st.divider()
 
     db = get_db()
@@ -332,8 +421,8 @@ def render_risk_monitor():
         db.close()
 
 def render_analytics():
-    st.header("📈 Recruitment Analytics")
-    st.caption("Data-driven insights into your hiring pipeline and candidate risk")
+    st.title("📈 Recruitment Analytics")
+    st.markdown("Data-driven insights into your hiring pipeline and candidate risk.")
     st.divider()
 
     db = get_db()
@@ -401,13 +490,13 @@ def render_analytics():
         db.close()
 
 def render_followups():
-    st.header("📅 Follow-up Management")
-    st.caption("Ensure active engagement with candidates to maximize offer acceptance")
+    st.title("📅 Follow-up Management")
+    st.markdown("Ensure active engagement with candidates to maximize offer acceptance.")
     st.divider()
 
     db = get_db()
     try:
-        tab1, tab2, tab3 = st.tabs(["Today's Agenda", "Pending Actions", "Schedule New"])
+        tab1, tab2, tab3 = st.tabs(["📅 Today's Agenda", "⏳ Pending Actions", "➕ Schedule New"])
 
         with tab1:
             st.subheader("Today's Tasks")
@@ -474,12 +563,11 @@ def render_followups():
                 cand_list = {c.name: c.candidate_id for c in candidates}
                 selected_cand = st.selectbox("Select Candidate", options=list(cand_list.keys()))
 
-                if st.form_submit_button("Schedule Follow-up"):
+                if st.form_submit_button("Schedule Follow-up", use_container_width=True):
                     if not selected_cand:
                         st.error("Please select a candidate.")
                     else:
                         offer = db.query(Offer).filter(Offer.candidate_id == cand_list[selected_cand]).first()
-                        # Simplified form fields for brevity in fix
                         followup_date = date.today()
                         channel = "Phone"
                         message = "Standard follow-up"
